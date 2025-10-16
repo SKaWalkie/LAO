@@ -1,0 +1,31 @@
+# Slip 13 — eigenvalues/eigenvectors; Gauss Elimination (2x2); LP with PuLP
+import numpy as np
+from pulp import *
+
+# Q1
+F = np.array([[1,12,0],[-8,5,5],[0,0,1]], float)
+w,v = np.linalg.eig(F)
+print("Q1) eigenvalues =", w)
+print("Q1) eigenvectors (cols)=\n", v)
+
+# Q2
+A = np.array([[2,5],[ -4,3 ]], float)
+b = np.array([2,-30], float)
+# Forward elim
+a11 = A[0,0]
+factor = A[1,0]/a11
+A[1] = A[1] - factor*A[0]
+b[1] = b[1] - factor*b[0]
+# Back-sub
+y = b[1]/A[1,1]
+x = (b[0]-A[0,1]*y)/A[0,0]
+print("Q2) (x,y) =", (x,y))
+
+# Q3 Max 6x1+5x2+4x3 with ≤ (same as Slip12 Q3)
+prob = LpProblem("Slip13_Q3", LpMaximize)
+x1=LpVariable('x1',lowBound=0); x2=LpVariable('x2',lowBound=0); x3=LpVariable('x3',lowBound=0)
+prob += 6*x1 + 5*x2 + 4*x3
+prob += x1 + 2*x2 + x3 <= 10
+prob += 2*x1 + x2 + 3*x3 <= 15
+prob.solve()
+print("Q3) Status:", LpStatus[prob.status], " x* =", x1.value(), x2.value(), x3.value(), " Z =", value(prob.objective))

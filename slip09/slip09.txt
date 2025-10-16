@@ -1,0 +1,30 @@
+# Slip 9 — inverse & eigenvalues; Gauss-Jordan; LP with PuLP
+import numpy as np
+from pulp import *
+
+# Q1
+A = np.array([[1,2],[3,4]], float)
+print("Q1) inv(A) =\n", np.linalg.inv(A))
+print("Q1) eigenvalues =", np.linalg.eigvals(A))
+
+# Q2 Gauss-Jordan (same 2x2 system as slip 8)
+M = np.array([[1,1,5],[2,-1,4]], float)
+# Normalize first row
+M[0] = M[0]/M[0,0]
+# Eliminate a21
+M[1] = M[1] - M[1,0]*M[0]
+# Normalize row2
+M[1] = M[1]/M[1,1]
+# Eliminate a12
+M[0] = M[0] - M[0,1]*M[1]
+x,y = M[:,2]
+print("Q2) (x,y) =", (x,y))
+
+# Q3 PuLP Min 5x+7y s.t. 2x+3y>=12; x+y>=5; x,y>=0
+prob = LpProblem("Slip9_Q3", LpMinimize)
+x = LpVariable('x', lowBound=0); y = LpVariable('y', lowBound=0)
+prob += 5*x + 7*y
+prob += 2*x + 3*y >= 12
+prob += x + y >= 5
+prob.solve()
+print("Q3) Status:", LpStatus[prob.status], " x,y =", x.value(), y.value(), " Z =", value(prob.objective))

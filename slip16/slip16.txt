@@ -1,0 +1,28 @@
+# Slip 16 — solve with inbuilt; Cramer's; LP with PuLP (Min)
+import numpy as np
+from pulp import *
+
+# Q1
+A = np.array([[1,2],[3,-1]], float)
+b = np.array([8,1], float)
+x = np.linalg.solve(A,b)
+print("Q1) (x,y) =", x)
+
+# Q2 Cramer's
+A2 = np.array([[1,1,1],[1,1,-1],[1,-1,1]], float)
+b2 = np.array([6,2,2], float)
+detA = np.linalg.det(A2)
+sol=[]
+for k in range(3):
+    Ak=A2.copy(); Ak[:,k]=b2
+    sol.append(np.linalg.det(Ak)/detA)
+print("Q2) (x,y,z) =", tuple(sol))
+
+# Q3 PuLP Min 8x+4y+6z with ≥
+prob = LpProblem("Slip16_Q3", LpMinimize)
+x=LpVariable('x',lowBound=0); y=LpVariable('y',lowBound=0); z=LpVariable('z',lowBound=0)
+prob += 8*x + 4*y + 6*z
+prob += 3*x + 2*y + z >= 15
+prob += 2*x + 5*y + 3*z >= 20
+prob.solve()
+print("Q3) Status:", LpStatus[prob.status], " sol =", x.value(), y.value(), z.value(), " Z =", value(prob.objective))

@@ -1,0 +1,30 @@
+# Slip 8 — identity*matrix; Gauss-Seidel; LP with optimize
+import numpy as np
+from scipy.optimize import linprog
+
+# Q1
+I = np.eye(4)
+M = np.arange(1,17, dtype=float).reshape(4,4)
+print("Q1) I =\n", I)
+print("Q1) M =\n", M)
+print("Q1) I*M =\n", I @ M)
+
+# Q2 Gauss-Seidel for:
+# x + y = 5
+# 2x - y = 4
+A = np.array([[1,1],[2,-1]], float)
+b = np.array([5,4], float)
+x = np.zeros(2)
+for _ in range(50):
+    x_old = x.copy()
+    x[0] = (b[0]-A[0,1]*x[1])/A[0,0]
+    x[1] = (b[1]-A[1,0]*x[0])/A[1,1]
+    if np.linalg.norm(x-x_old,np.inf)<1e-10: break
+print("Q2) (x,y) =", x)
+
+# Q3 Max 4x+3y with ≤
+c = -np.array([4,3], float)
+A_ub = np.array([[2,1],[1,2]], float)
+b_ub = np.array([8,6], float)
+res = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=[(0,None)]*2, method="highs")
+print("Q3) Z* =", -res.fun, " at (x,y) =", res.x)

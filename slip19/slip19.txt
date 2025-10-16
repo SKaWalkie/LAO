@@ -1,0 +1,26 @@
+# Slip 19 — orthogonal check; Gauss-Jordan 3x3; LP with PuLP (Max)
+import numpy as np
+from pulp import *
+
+# Q1
+M = np.array([[1,0,0],[0,0,-1],[0,1,0]], float)  # example orthogonal matrix
+print("Q1) M^T M =\n", M.T @ M)
+print("Q1) Is orthogonal? ->", np.allclose(M.T @ M, np.eye(3)))
+
+# Q2 Gauss-Jordan
+M2 = np.array([[1,1,1,6],[2,3,1,11],[3,1,2,11]], float)
+for i in range(3):
+    M2[i] = M2[i]/M2[i,i]
+    for j in range(3):
+        if i!=j:
+            M2[j] = M2[j] - M2[j,i]*M2[i]
+print("Q2) (x,y,z) =", tuple(M2[:,3]))
+
+# Q3 PuLP Max 10x+15y; 2x+y<=8; x+3y<=9
+prob = LpProblem("Slip19_Q3", LpMaximize)
+x=LpVariable('x',lowBound=0); y=LpVariable('y',lowBound=0)
+prob += 10*x + 15*y
+prob += 2*x + y <= 8
+prob += x + 3*y <= 9
+prob.solve()
+print("Q3) Status:", LpStatus[prob.status], " x,y =", x.value(), y.value(), " Z =", value(prob.objective))

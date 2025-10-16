@@ -1,0 +1,34 @@
+# Slip 11 — construct matrices; Cramer's; LP with PuLP
+import numpy as np
+from pulp import *
+
+# Q1
+row = np.array([[1,2,3]])
+col = np.array([[1],[2],[3],[4]])
+I5 = np.eye(5)
+Z = np.zeros((4,3))
+D = np.diag([2,4,6])
+print("Q1) Row 1x3:\n", row)
+print("Q1) Col 4x1:\n", col)
+print("Q1) I5:\n", I5)
+print("Q1) Zero 4x3:\n", Z)
+print("Q1) Diagonal:\n", D)
+
+# Q2 Cramer
+A = np.array([[1,2,3],[2,1,1],[3,4,1]], float)
+b = np.array([14,10,19], float)
+detA = np.linalg.det(A)
+sol=[]
+for k in range(3):
+    Ak=A.copy(); Ak[:,k]=b
+    sol.append(np.linalg.det(Ak)/detA)
+print("Q2) (x,y,z) =", tuple(sol))
+
+# Q3 PuLP Max 150x+75y with ≤
+prob = LpProblem("Slip11_Q3", LpMaximize)
+x = LpVariable('x', lowBound=0); y = LpVariable('y', lowBound=0)
+prob += 150*x + 75*y
+prob += 4*x + 6*y <= 24
+prob += 5*x + 3*y <= 15
+prob.solve()
+print("Q3) Status:", LpStatus[prob.status], " x,y =", x.value(), y.value(), " Z =", value(prob.objective))

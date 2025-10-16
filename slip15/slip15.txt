@@ -1,0 +1,28 @@
+# Slip 15 — vector ops; Cramer's; LP with optimize (Min)
+import numpy as np
+from scipy.optimize import linprog
+
+# Q1
+A = np.array([3,5,7], float)
+B = np.array([1,2,4], float)
+print("Q1) A+B =", A+B)
+print("Q1) 4*A =", 4*A)
+print("Q1) A^T * B =", A @ B)
+print("Q1) A * B^T =\n", np.outer(A, B))
+
+# Q2 Cramer's
+A2 = np.array([[1,1,-1],[0,8,6],[-2,4,-6]], float)
+b2 = np.array([9,-6,40], float)
+detA = np.linalg.det(A2)
+sol=[]
+for k in range(3):
+    Ak=A2.copy(); Ak[:,k]=b2
+    sol.append(np.linalg.det(Ak)/detA)
+print("Q2) (x,y,z) =", tuple(sol))
+
+# Q3 Min 3.5x+2y with constraints
+c = np.array([3.5,2], float)
+A_ub = -np.array([[1,1],[1,0],[0,1]], float)  # x+y>=5, x>=4, y<=2 -> convert properly
+b_ub = -np.array([5,4,-2])
+res = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=[(0,None),(0,None)], method="highs")
+print("Q3) Z* =", res.fun, " at (x,y) =", res.x)

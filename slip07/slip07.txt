@@ -1,0 +1,28 @@
+# Slip 7 — rank by row ops; Gauss-Jordan (manual steps); LP with optimize
+import numpy as np
+from scipy.optimize import linprog
+
+# Q1 rank
+B = np.array([[1,2,3],[2,6,10],[0,-2,-4]], float)
+r = np.linalg.matrix_rank(B)
+print("Q1) rank(B) =", r)
+
+# Q2 Gauss-Jordan for:
+M = np.array([[1,1,5],[2,-1,4]], float)  # augmented [ [1 1 | 5], [2 -1 | 4] ]
+print("\nQ2) Start:\n", M)
+# R2 <- R2 - 2 R1
+M[1] = M[1] - 2*M[0]
+# Make pivot R2,2 = 1
+M[1] = M[1] / M[1,1]
+# R1 <- R1 - a12*R2
+M[0] = M[0] - M[0,1]*M[1]
+print("Q2) Reduced:\n", M)
+x,y = M[:,2]
+print("Q2) (x,y) =", (x,y))
+
+# Q3 Max 3x1+5x2+4x3 with given ≤
+c = -np.array([3,5,4], float)
+A_ub = np.array([[2,3,0],[0,2,5],[3,2,4]], float)
+b_ub = np.array([8,10,15], float)
+res = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=[(0,None)]*3, method='highs')
+print("Q3) Z* =", -res.fun, " at (x1,x2,x3) =", res.x)

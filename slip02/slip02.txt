@@ -1,0 +1,35 @@
+# Slip 2 — matrix algebra; Gauss-Jordan; LP with PuLP
+import numpy as np
+from fractions import Fraction
+from pulp import LpProblem, LpVariable, LpMinimize, LpStatus, value
+
+# Q1
+A = np.array([[1,2],[3,4]], float)
+B = np.array([[2,0],[1,2]], float)
+print("Q1) (A+B)^2 =\n", ((A+B)@(A+B)))
+print("Q1) AB + BA =\n", (A@B + B@A))
+print("Q1) A^T =\n", A.T)
+
+# Q2 Gauss-Jordan
+M = np.array([[1,1,1,6],[1,1,-1,2],[1,-1,1,2]], float)
+print("\nQ2) Start [A|b]:\n", M)
+for i in range(3):
+    M[i] /= M[i,i]
+    for j in range(3):
+        if i!=j:
+            M[j] -= M[j,i]*M[i]
+    print(f"After pivot {i+1}:\n", M)
+x,y,z = M[:,3]
+print("Q2) (x,y,z) =", (x,y,z))
+
+# Q3 PuLP (Min 3.5x+2y; x+y>=5, x>=4, y<=2, x,y>=0)
+prob = LpProblem("Slip2_Q3", LpMinimize)
+x = LpVariable('x', lowBound=0)
+y = LpVariable('y', lowBound=0)
+prob += 3.5*x + 2*y
+prob += x + y >= 5
+prob += x >= 4
+prob += y <= 2
+prob.solve()
+print("\nQ3) Status:", LpStatus[prob.status])
+print("x,y =", x.value(), y.value(), "  Z =", value(prob.objective))

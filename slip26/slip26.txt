@@ -1,0 +1,46 @@
+# --- Q1: Inbuilt functions (NumPy solve)
+import numpy as np
+
+A = np.array([[4,1,2],
+              [1,5,1],
+              [2,1,6]], dtype=float)
+B = np.array([4,7,9], dtype=float)
+sol = np.linalg.solve(A,B)
+print("Q1 (NumPy solve) [x,y,z]:", sol)
+
+# --- Q2: Manual Gauss Elimination (upper triangular + back-substitution)
+# Augmented matrix [A|B]:
+M = np.array([[ 2.,  1., -1.,  3.],
+              [-3., -1.,  2., -5.],
+              [-2.,  1.,  2., -2.]])
+
+# Forward elimination
+rows, cols = M.shape[0], M.shape[1]-1
+for k in range(rows-1):
+    # pivot (assume nonzero; data chosen in slip ensures solvable)
+    for i in range(k+1, rows):
+        factor = M[i,k]/M[k,k]
+        M[i,k:cols+1] -= factor*M[k,k:cols+1]
+
+# Back substitution
+x = np.zeros(rows)
+for i in range(rows-1, -1, -1):
+    x[i] = (M[i,cols] - np.dot(M[i,i+1:cols], x[i+1:]))/M[i,i]
+
+print("Q2 (Gauss Elimination) [x,y,z]:", x)
+
+# --- Q3: PuLP Maximize Z = 5x + 4y + 6z, constraints <=
+from pulp import LpProblem, LpMaximize, LpVariable, LpStatus, value
+
+prob = LpProblem("Slip26_Q3", LpMaximize)
+x = LpVariable("x", lowBound=0)
+y = LpVariable("y", lowBound=0)
+z = LpVariable("z", lowBound=0)
+
+prob += 5*x + 4*y + 6*z
+prob += 2*x + 1*y + 1*z <= 10
+prob += 1*x + 3*y + 2*z <= 12
+
+prob.solve()
+print("Q3 (PuLP Max): status =", LpStatus[prob.status])
+print("x =", value(x), "y =", value(y), "z =", value(z), "Z =", value(prob.objective))

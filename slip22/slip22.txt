@@ -1,0 +1,46 @@
+# --- Q1: Inversion method: AX = B -> X = A^{-1}B
+import numpy as np
+
+A = np.array([[1,1,1],
+              [2,3,7],
+              [3,4,10]], dtype=float)
+B = np.array([6,20,29], dtype=float)
+
+A_inv = np.linalg.inv(A)
+X = A_inv @ B
+print("Q1 (Inverse method) Solution [x,y,z]:", X)
+
+# --- Q2: Gauss–Seidel for the given system
+# x + y + z = 6
+# 2x + 3y + z = 11
+# 3x + y + 2z = 11
+def gauss_seidel(max_iter=1000, tol=1e-10):
+    x=y=z=0.0
+    for _ in range(max_iter):
+        x_new = 6 - y - z
+        y_new = (11 - 2*x_new - z)/3
+        z_new = (11 - 3*x_new - y_new)/2
+        if max(abs(x_new-x), abs(y_new-y), abs(z_new-z)) < tol:
+            x,y,z = x_new,y_new,z_new
+            break
+        x,y,z = x_new,y_new,z_new
+    return x,y,z
+
+x,y,z = gauss_seidel()
+print("Q2 (Gauss–Seidel) Solution [x,y,z]:", (x,y,z))
+
+# --- Q3: PuLP Minimize Z = 7x + 5y + 4z, with ≥ constraints
+from pulp import LpProblem, LpMinimize, LpVariable, LpStatus, value
+
+prob = LpProblem("Slip22_Q3", LpMinimize)
+x = LpVariable("x", lowBound=0)
+y = LpVariable("y", lowBound=0)
+z = LpVariable("z", lowBound=0)
+
+prob += 7*x + 5*y + 4*z
+prob += 3*x + 2*y + 1*z >= 15
+prob += 2*x + 1*y + 4*z >= 18
+
+prob.solve()
+print("Q3 (PuLP Min): status =", LpStatus[prob.status])
+print("x =", value(x), "y =", value(y), "z =", value(z), "Z =", value(prob.objective))

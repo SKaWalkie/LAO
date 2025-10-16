@@ -1,0 +1,27 @@
+# Slip 3 — det, inverse, rank; Cramer's; LP with optimize
+import numpy as np
+from scipy.optimize import linprog
+
+# Q1
+A = np.array([[2,7,-1],[0,1,-2],[-1,-3,4]], float)
+print("Q1) det(A) =", np.linalg.det(A))
+print("Q1) inv(A) =\n", np.linalg.inv(A))
+print("Q1) rank(A) =", np.linalg.matrix_rank(A))
+
+# Q2 Cramer's Rule
+A2 = np.array([[1,1,1],[2,3,1],[3,1,2]], float)
+b2 = np.array([6,11,11], float)
+detA = np.linalg.det(A2)
+sol = []
+for k in range(3):
+    Ak = A2.copy(); Ak[:,k] = b2
+    sol.append(np.linalg.det(Ak)/detA)
+print("\nQ2) (x,y,z) =", tuple(sol))
+
+# Q3 Max 4x+y+3z+5w  s.t. 4x+6y-5z-4w >= -20; -8x-3y+3z+2w <= 2; x+y<=11; x,y,z,w>=0
+# Convert >= to <= by multiplying -1; maximize by minimizing -c
+c = -np.array([4,1,3,5], float)
+A_ub = np.array([[-4,-6,5,4],[-8,-3,3,2],[1,1,0,0]], float)
+b_ub = np.array([20, 2, 11], float)
+res = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=[(0,None)]*4, method="highs")
+print("Q3) Z* =", -res.fun, " at (x,y,z,w) =", res.x)

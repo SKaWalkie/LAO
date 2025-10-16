@@ -1,0 +1,36 @@
+# Slip 10 — solve AX=B + ranks + uniqueness; Gauss-Jordan 3x3; LP with optimize
+import numpy as np
+from scipy.optimize import linprog
+
+# Q1
+A = np.array([[1,2,3],[4,5,6],[7,8,10]], float)
+B = np.array([14,31,50], float)
+X = np.linalg.solve(A,B)
+print("Q1) X =", X)
+print("rank(A) =", np.linalg.matrix_rank(A))
+Aug = np.c_[A,B]
+print("rank([A|B]) =", np.linalg.matrix_rank(Aug))
+print("Q1) Unique solution? ->", np.linalg.matrix_rank(A)==np.linalg.matrix_rank(Aug)==A.shape[0])
+
+# Q2 Gauss-Jordan for system:
+M = np.array([[1,1,-1,9],[0,8,6,-6],[-2,4,-6,40]], float)
+# pivot1
+M[0] = M[0]/M[0,0]
+M[1] = M[1] - M[1,0]*M[0]
+M[2] = M[2] - M[2,0]*M[0]
+# pivot2
+M[1] = M[1]/M[1,1]
+M[0] = M[0] - M[0,1]*M[1]
+M[2] = M[2] - M[2,1]*M[1]
+# pivot3
+M[2] = M[2]/M[2,2]
+M[0] = M[0] - M[0,2]*M[2]
+M[1] = M[1] - M[1,2]*M[2]
+print("Q2) (x,y,z) =", tuple(M[:,3]))
+
+# Q3 Max 5x+7y with ≥ constraints -> convert to ≤ by multiplying -1
+c = -np.array([5,7])
+A_ub = np.array([[-2,-3],[-1,-1]])
+b_ub = np.array([-12,-5])
+res = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=[(0,None)]*2, method="highs")
+print("Q3) Z* =", -res.fun, " at (x,y) =", res.x)

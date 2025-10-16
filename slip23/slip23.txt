@@ -1,0 +1,32 @@
+# Slip 23 — eigenpairs (3x3); Gauss-Seidel (3x3); LP with PuLP
+import numpy as np
+from pulp import *
+
+# Q1
+E = np.array([[1,2,3],[4,5,6],[7,8,10]], float)
+w,v = np.linalg.eig(E)
+print("Q1) eigenvalues =", w)
+print("Q1) eigenvectors =\n", v)
+
+# Q2 Gauss-Seidel
+A = np.array([[4,1,2],[1,5,1],[2,1,6]], float)
+b = np.array([4,7,9], float)
+x = np.zeros(3)
+for _ in range(200):
+    x_old=x.copy()
+    x[0]=(b[0]-A[0,1]*x[1]-A[0,2]*x[2])/A[0,0]
+    x[1]=(b[1]-A[1,0]*x[0]-A[1,2]*x[2])/A[1,1]
+    x[2]=(b[2]-A[2,0]*x[0]-A[2,1]*x[1])/A[2,2]
+    if np.linalg.norm(x-x_old,np.inf)<1e-10: break
+print("Q2) (x,y,z) =", x)
+
+# Q3 PuLP Max 4x+y+3z+5w with constraints
+prob = LpProblem("Slip23_Q3", LpMaximize)
+x=LpVariable('x',lowBound=0); y=LpVariable('y',lowBound=0)
+z=LpVariable('z',lowBound=0); w=LpVariable('w',lowBound=0)
+prob += 4*x + y + 3*z + 5*w
+prob += 4*x + 6*y - 5*z - 4*w >= -20
+prob += -8*x - 3*y + 3*z + 2*w <= 20
+prob += x + y <= 11
+prob.solve()
+print("Q3) Status:", LpStatus[prob.status], " sol =", x.value(), y.value(), z.value(), w.value(), " Z =", value(prob.objective))
